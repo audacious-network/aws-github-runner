@@ -3,26 +3,30 @@ on:
     branches:
       - main
 
-name: Package
+name: package
 
 jobs:
   package:
     name: Package distribution files
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      -
         uses: actions/checkout@v2
         with:
           ref: main
-      - name: Install packages
+      -
+        name: install packages
         run: npm ci
-      - name: Run linter
+      -
+        name: lint
         run: npm run lint
-      - name: Package
+      -
+        name: package
         run: npm run package
-      - name: Commit
+      -
+        name: commit and push
         run: |
-          git config --global user.name "GitHub Actions"
+          git config --global user.name "github actions"
           git add dist/
-          git commit -m "Update dist" || echo "No changes to commit"
+          git commit -m "update dist" || echo "no changes to commit"
           git push origin main

@@ -1,77 +1,112 @@
-name: On-demand self-hosted AWS EC2 runner for GitHub Actions
-description: GitHub Action for automatic creation and registration AWS EC2 instance as a GitHub Actions self-hosted runner.
-author: Volodymyr Machula
+name: on-demand self-hosted aws runner (with convenient aws defaults) for github actions
+description: |
+  github action for creation and registration of aws instances as gitjub actions self-hosted runners.
+  this action is a fork of [machulav/ec2-github-runner](https://github.com/machulav/ec2-github-runner).
+  it has been modified to:
+  - support image (ami) search patterns and owners rather than a specific ami id. useful if, for example, the latest ubuntu image is required.
+  - bootstrap the image by installing docker and git if they are not preinstalled.
+  - support overriding user-data when custom dependencies need to be preinstalled.
+  - setting of the aws region with the aws-region input rather than an environment variable.
+  - support use of the default subnet and security group for the vpc/az instead of requiring an explicit security group and subnet.
+  - support use of spot or scheduled instances as opposed to only scheduled instances.
+author: rob thijssen
 branding:
-  icon: 'box'
-  color: 'orange'
+  icon: cloud-lightning
+  color: purple
 inputs:
   mode:
     description: >-
-      Specify here which mode you want to use:
+      specify here which mode you want to use:
         - 'start' - to start a new runner;
         - 'stop' - to stop the previously created runner.
     required: true
   github-token:
     description: >-
-      GitHub Personal Access Token with the 'repo' scope assigned.
+      github personal access token with the 'repo' scope assigned.
     required: true
-  ec2-image-id:
+  aws-region:
     description: >-
-      EC2 Image Id (AMI). The new runner will be launched from this image.
-      This input is required if you use the 'start' mode.
+      aws region. the runner instance will be launched in this region.
+    required: true
+  aws-image-id:
+    description: >-
+      aws image id (ami). the runner instance will be launched from this image.
+      either aws-image-id or aws-image-search-pattern is required if the 'start' mode is used.
     required: false
-  ec2-instance-type:
+  aws-image-search-pattern:
     description: >-
-      EC2 Instance Type. 
-      This input is required if you use the 'start' mode.
+      aws image (ami) search pattern. the runner instance will be launched from the latest image whose name matches this search pattern.
+      either aws-image-id or aws-image-search-pattern is required if the 'start' mode is used.
     required: false
-  subnet-id:
+  aws-image-search-owners:
     description: >-
-      VPC Subnet Id. The subnet should belong to the same VPC as the specified security group.
-      This input is required if you use the 'start' mode.
+      aws image (ami) search owners. the runner instance will be launched from the latest image whose name matches aws-image-search-pattern and whose owner is included in this list.
+      this must be a stringified array of strings, for example,
+      to use images owned/created by amazon: '["amazon"]',
+      to use images owned/created by a specific aws account id: '["123456789"]'.
     required: false
-  security-group-id:
+  aws-instance-user-data:
     description: >-
-      EC2 Security Group Id. 
-      The security group should belong to the same VPC as the specified subnet.
-      The runner doesn't require any inbound traffic. However, outbound traffic should be allowed.
-      This input is required if you use the 'start' mode.
+      aws instance user data. this field should only be set if overriding default user-data is required.
+      for example to install action specific dependencies. if set, the user-data must include commands to install, configure and run github-action-runner as the default user-data does.
+    required: false
+  aws-instance-type:
+    description: >-
+      aws instance type. 
+      this input is required if you use the 'start' mode.
+    required: false
+  aws-instance-lifecycle:
+    description: >-
+      aws instance lifecycle. 
+      defaults to "scheduled". possible values:
+      - spot: cheaper instances that may disappear mid-task
+      - scheduled: normal instances
+    required: false
+  aws-subnet-id:
+    description: >-
+      aws subnet id. the subnet should belong to the same vpc as the specified security group.
+    required: false
+  aws-security-group-id:
+    description: >-
+      aws security group id. 
+      the security group should belong to the same vpc as the specified subnet.
+      the runner doesn't require any inbound traffic. however, outbound traffic should be allowed.
     required: false
   label:
     description: >-
-      Name of the unique label assigned to the runner.
-      The label is used to remove the runner from GitHub when the runner is not needed anymore.
-      This input is required if you use the 'stop' mode.
+      name of the unique label assigned to the runner.
+      the label is used to remove the runner from github when the runner is not needed anymore.
+      this input is required if you use the 'stop' mode.
     required: false
-  ec2-instance-id:
+  aws-instance-id:
     description: >-
-      EC2 Instance Id of the created runner.
-      The id is used to terminate the EC2 instance when the runner is not needed anymore.
-      This input is required if you use the 'stop' mode.
+      aws instance id of the created runner.
+      the id is used to terminate the aws instance when the runner is not needed anymore.
+      this input is required if you use the 'stop' mode.
     required: false
-  iam-role-name:
+  aws-iam-role-name:
     description: >-
-      IAM Role Name to attach to the created EC2 instance.
-      This requires additional permissions on the AWS role used to launch instances.
+      iam role name to attach to the created aws instance.
+      this requires additional permissions on the aws role used to launch instances.
     required: false
   aws-resource-tags:
     description: >-
-      Tags to attach to the launched EC2 instance and volume.
-      This must be a stringified array of AWS Tag objects, with both Key and Value fields,
-      for example: '[{"Key": "TagKey1", "Value": "TagValue1"}, {"Key": "TagKey2", "Value": "TagValue2"}]'
+      tags to attach to the launched aws instance and volume.
+      this must be a stringified array of aws tag objects, with both key and value fields,
+      for example: '[{"key": "tagkey1", "value": "tagvalue1"}, {"key": "tagkey2", "value": "tagvalue2"}]'
     required: false
     default: '[]'
 outputs:
   label:
     description: >-
-      Name of the unique label assigned to the runner.
-      The label is used in two cases:
+      name of the unique label assigned to the runner.
+      the label is used in two cases:
       - to use as the input of 'runs-on' property for the following jobs;
-      - to remove the runner from GitHub when it is not needed anymore.
-  ec2-instance-id:
+      - to remove the runner from github when it is not needed anymore.
+  aws-instance-id:
     description: >-
-      EC2 Instance Id of the created runner.
-      The id is used to terminate the EC2 instance when the runner is not needed anymore.
+      aws instance id of the created runner.
+      the id is used to terminate the aws instance when the runner is not needed anymore.
 runs:
   using: node12
   main: ./dist/index.js

@@ -6,19 +6,33 @@ class Config {
     this.input = {
       mode: core.getInput('mode'),
       githubToken: core.getInput('github-token'),
-      ec2ImageId: core.getInput('ec2-image-id'),
-      ec2InstanceType: core.getInput('ec2-instance-type'),
-      subnetId: core.getInput('subnet-id'),
-      securityGroupId: core.getInput('security-group-id'),
+      awsRegion: core.getInput('aws-region'),
+      awsImageId: core.getInput('aws-image-id'),
+      awsImageSearchPattern: core.getInput('aws-image-search-pattern'),
+      awsImageSearchOwners: JSON.parse(core.getInput('aws-image-search-owners')),
+      awsInstanceType: core.getInput('aws-instance-type'),
+      awsInstanceLifecycle: core.getInput('aws-instance-lifecycle') || 'scheduled',
+      awsSubnetId: core.getInput('aws-subnet-id'),
+      awsSecurityGroupId: core.getInput('aws-security-group-id'),
+      awsInstanceId: core.getInput('aws-instance-id'),
+      awsIamRoleName: core.getInput('aws-iam-role-name'),
+      awsInstanceUserData: core.getInput('aws-instance-user-data'),
       label: core.getInput('label'),
-      ec2InstanceId: core.getInput('ec2-instance-id'),
-      iamRoleName: core.getInput('iam-role-name'),
     };
 
     const tags = JSON.parse(core.getInput('aws-resource-tags'));
     this.tagSpecifications = null;
     if (tags.length > 0) {
-      this.tagSpecifications = [{ResourceType: 'instance', Tags: tags}, {ResourceType: 'volume', Tags: tags}];
+      this.tagSpecifications = [
+        {
+          ResourceType: 'instance',
+          Tags: tags
+        },
+        {
+          ResourceType: 'volume',
+          Tags: tags
+        }
+      ];
     }
 
     // the values of github.context.repo.owner and github.context.repo.repo are taken from
@@ -29,28 +43,28 @@ class Config {
       repo: github.context.repo.repo,
     };
 
-    //
-    // validate input
-    //
-
     if (!this.input.mode) {
-      throw new Error(`The 'mode' input is not specified`);
+      throw new Error(`'mode' input is not specified`);
     }
 
     if (!this.input.githubToken) {
-      throw new Error(`The 'github-token' input is not specified`);
+      throw new Error(`'github-token' input is not specified`);
+    }
+
+    if (!this.input.awsRegion) {
+      throw new Error(`'aws-region' input is not specified`);
     }
 
     if (this.input.mode === 'start') {
-      if (!this.input.ec2ImageId || !this.input.ec2InstanceType || !this.input.subnetId || !this.input.securityGroupId) {
-        throw new Error(`Not all the required inputs are provided for the 'start' mode`);
+      if ((!this.input.awsImageId && !this.input.awsImageSearchPattern) || !this.input.awsInstanceType) {
+        throw new Error(`not all the required inputs are provided for the 'start' mode`);
       }
     } else if (this.input.mode === 'stop') {
-      if (!this.input.label || !this.input.ec2InstanceId) {
-        throw new Error(`Not all the required inputs are provided for the 'stop' mode`);
+      if (!this.input.label || !this.input.awsInstanceId) {
+        throw new Error(`not all the required inputs are provided for the 'stop' mode`);
       }
     } else {
-      throw new Error('Wrong mode. Allowed values: start, stop.');
+      throw new Error('unknown mode. Defined values: start, stop.');
     }
   }
 
