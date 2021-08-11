@@ -230,7 +230,7 @@ jobs:
     name: start self-hosted aws runner
     runs-on: ubuntu-latest
     outputs:
-      label: ${{ steps.start-aws-runner.outputs.label }}
+      runner-label: ${{ steps.start-aws-runner.outputs.runner-label }}
       aws-instance-id: ${{ steps.start-aws-runner.outputs.aws-instance-id }}
     steps:
       - name: configure aws credentials
@@ -258,7 +258,7 @@ jobs:
   do-the-job:
     name: do the job on the runner
     needs: start-runner # required to start the main job when the runner is ready
-    runs-on: ${{ needs.start-runner.outputs.label }} # run the job on the newly created runner
+    runs-on: ${{ needs.start-runner.outputs.runner-label }} # run the job on the newly created runner
     steps:
       - name: hello world
         run: echo 'hello world!'
@@ -281,7 +281,7 @@ jobs:
         with:
           mode: stop
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          label: ${{ needs.start-runner.outputs.label }}
+          runner-label: ${{ needs.start-runner.outputs.runner-label }}
           aws-instance-id: ${{ needs.start-runner.outputs.aws-instance-id }}
 ```
 

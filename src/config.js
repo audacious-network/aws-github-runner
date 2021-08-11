@@ -19,7 +19,10 @@ class Config {
       awsInstanceUserData: core.getInput('aws-instance-user-data'),
       awsInstanceUsername: core.getInput('aws-instance-username'),
       awsInstanceSshPublicKey: core.getInput('aws-instance-ssh-public-key'),
-      label: core.getInput('label'),
+      runnerInstallDir: core.getInput('runner-install-dir') || '/opt/actions-runner',
+      runnerArch: core.getInput('runner-arch') || 'x64',
+      runnerVersion: core.getInput('runner-version') || '2.280.1',
+      runnerLabel: core.getInput('runner-label'),
     };
 
     const tags = JSON.parse(core.getInput('aws-resource-tags'));

@@ -32,17 +32,18 @@ async function startInstance(label, githubRegistrationToken) {
     '        permissions: 0644',
     '        content: |',
     '            RUNNER_ALLOW_RUNASROOT=1',
-    '            RUNNER_INSTALL_DIR=/opt/actions-runner',
-    '            RUNNER_VERSION=2.280.1',
+    `            RUNNER_ARCH=${config.input.runnerArch}`,
+    `            RUNNER_VERSION=${config.input.runnerVersion}`,
     '            DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1',
     'runcmd:',
+    '    - systemctl unmask docker.service',
+    '    - systemctl unmask docker.socket',
     '    - systemctl enable --now docker',
-    '    - mkdir -p ${RUNNER_INSTALL_DIR}',
-    '    - case $(uname -m) in aarch64) ARCH="arm64" ;; amd64|x86_64) ARCH="x64" ;; esac && export RUNNER_ARCH=${ARCH}',
-    '    - curl -O -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz',
-    '    - tar xfz actions-runner-linux-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz -C ${RUNNER_INSTALL_DIR} --strip-components=1',
-    `    - \${RUNNER_INSTALL_DIR}/config.sh --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}`,
-    '    - ${RUNNER_INSTALL_DIR}/run.sh', // todo: https://docs.github.com/en/actions/hosting-your-own-runners/configuring-the-self-hosted-runner-application-as-a-service
+    `    - mkdir -p ${config.input.runnerInstallDir}`,
+    `    - curl -O -L https://github.com/actions/runner/releases/download/v${config.input.runnerVersion}/actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz`,
+    `    - tar xfz actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz -C ${config.input.runnerInstallDir} --strip-components=1`,
+    `    - ${config.input.runnerInstallDir}/config.sh --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}`,
+    `    - ${config.input.runnerInstallDir}/run.sh`, // todo: https://docs.github.com/en/actions/hosting-your-own-runners/configuring-the-self-hosted-runner-application-as-a-service
     '',
   ].join('\n');
 

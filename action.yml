@@ -80,11 +80,26 @@ inputs:
       the security group should belong to the same vpc as the specified subnet.
       the runner doesn't require any inbound traffic. however, outbound traffic should be allowed.
     required: false
-  label:
+  runner-label:
     description: >-
       name of the unique label assigned to the runner.
       the label is used to remove the runner from github when the runner is not needed anymore.
       this input is required if you use the 'stop' mode.
+    required: false
+  runner-install-dir:
+    description: >-
+      the path to the github-action-runner installation
+      defaults to: /opt/actions-runner
+    required: false
+  runner-arch:
+    description: >-
+      the architecture of the github action runner installer
+      defaults to: x64
+    required: false
+  runner-version:
+    description: >-
+      the version of the github action runner installer
+      defaults to: 2.280.1
     required: false
   aws-instance-id:
     description: >-
