@@ -8,6 +8,21 @@ async function startInstance(label, githubRegistrationToken) {
 
   const awsInstanceUserData = config.input.awsInstanceUserData || [
     '#cloud-config',
+    'system_info:',
+    '    default_user:',
+    ...(config.input.awsInstanceUsername) && [
+      `        name: ${config.input.awsInstanceUsername}`,
+      `        gecos: ${config.input.awsInstanceUsername}`,
+      `        primary_group: ${config.input.awsInstanceUsername}`,
+    ],
+    '        ssh_import_id: None',
+    '        lock_passwd: true',
+    ...(config.input.awsInstanceSshPublicKey) && [
+      '        ssh_authorized_keys:',
+      `            - ${config.input.awsInstanceSshPublicKey}`
+    ],
+    'users:',
+    '    - default',
     'packages:',
     '    - docker',
     '    - git',

@@ -17,6 +17,8 @@ class Config {
       awsInstanceId: core.getInput('aws-instance-id'),
       awsIamRoleName: core.getInput('aws-iam-role-name'),
       awsInstanceUserData: core.getInput('aws-instance-user-data'),
+      awsInstanceUsername: core.getInput('aws-instance-username'),
+      awsInstanceSshPublicKey: core.getInput('aws-instance-ssh-public-key'),
       label: core.getInput('label'),
     };
 

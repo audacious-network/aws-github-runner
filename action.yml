@@ -50,6 +50,14 @@ inputs:
       aws instance user data. this field should only be set if overriding default user-data is required.
       for example to install action specific dependencies. if set, the user-data must include commands to install, configure and run github-action-runner as the default user-data does.
     required: false
+  aws-instance-username:
+    description: >-
+      aws instance username. this field should be set if overriding default username is required.
+    required: false
+  aws-instance-ssh-public-key:
+    description: >-
+      aws instance ssh public key. this field should be set if ssh connections to the runner instance are required.
+    required: false
   aws-instance-type:
     description: >-
       aws instance type. 
