@@ -123,12 +123,16 @@ inputs:
     required: false
     default: '[]'
 outputs:
-  label:
+  runner-label:
     description: >-
       name of the unique label assigned to the runner.
       the label is used in two cases:
       - to use as the input of 'runs-on' property for the following jobs;
       - to remove the runner from github when it is not needed anymore.
+  aws-region:
+    description: >-
+      aws region of the created runner.
+      the region is used to terminate the aws instance when the runner is not needed anymore.
   aws-instance-id:
     description: >-
       aws instance id of the created runner.

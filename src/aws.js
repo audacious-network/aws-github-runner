@@ -68,8 +68,10 @@ async function startInstance(label, githubRegistrationToken) {
     `    - mkdir -p ${config.input.runnerInstallDir}`,
     `    - curl -O -L https://github.com/actions/runner/releases/download/v${config.input.runnerVersion}/actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz`,
     `    - tar xfz actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz -C ${config.input.runnerInstallDir} --strip-components=1`,
-    `    - ${config.input.runnerInstallDir}/config.sh --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}`,
-    `    - ${config.input.runnerInstallDir}/run.sh`, // todo: https://docs.github.com/en/actions/hosting-your-own-runners/configuring-the-self-hosted-runner-application-as-a-service
+    `    - cd ${config.input.runnerInstallDir} && ./config.sh --unattended --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}`,
+    `    - cd ${config.input.runnerInstallDir} && ./svc.sh install`,
+    `    - cd ${config.input.runnerInstallDir} && ./svc.sh start`,
+    `    - cd ${config.input.runnerInstallDir} && ./svc.sh status`,
     '',
   ].join('\n');
 
@@ -132,7 +134,7 @@ async function startInstance(label, githubRegistrationToken) {
           }
         }
 
-        return awsInstanceId;
+        return { awsRegion: config.input.awsRegion, awsInstanceId: config.input.awsInstanceId };
       } catch (error) {
         core.error('aws spot instance starting error');
         throw error;
@@ -152,7 +154,7 @@ async function startInstance(label, githubRegistrationToken) {
         }).promise();
         const awsInstanceId = runInstancesResult.Instances[0].InstanceId;
         core.info(`aws scheduled instance ${awsInstanceId} is started`);
-        return awsInstanceId;
+        return { awsRegion: config.input.awsRegion, awsInstanceId: config.input.awsInstanceId };
       } catch (error) {
         core.error('aws scheduled instance starting error');
         throw error;
@@ -178,8 +180,8 @@ async function terminateInstance() {
   }
 }
 
-async function awaitInstanceRunning(awsInstanceId) {
-  AWS.config.update({ region: config.input.awsRegion });
+async function awaitInstanceRunning(awsRegion, awsInstanceId) {
+  AWS.config.update({ region: awsRegion });
   const ec2 = new AWS.EC2();
 
   const params = {
@@ -188,10 +190,10 @@ async function awaitInstanceRunning(awsInstanceId) {
 
   try {
     await ec2.waitFor('instanceRunning', params).promise();
-    core.info(`aws instance: ${awsInstanceId}, in region: ${config.input.awsRegion}, is running`);
+    core.info(`aws instance: ${awsInstanceId}, in region: ${awsRegion}, is running`);
     return;
   } catch (error) {
-    core.error(`aws instance: ${awsInstanceId}, in region: ${config.input.awsRegion}, initialization error`);
+    core.error(`aws instance: ${awsInstanceId}, in region: ${awsRegion}, initialization error`);
     throw error;
   }
 }
