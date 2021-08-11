@@ -14,7 +14,7 @@ async function start() {
   const githubRegistrationToken = await gh.getRegistrationToken();
   const startInstance = await aws.startInstance(runnerLabel, githubRegistrationToken);
   setOutput(runnerLabel, startInstance.awsRegion, startInstance.awsInstanceId);
-  await aws.awaitInstanceRunning(startInstance.awsRegion, startInstance.awsInstanceId);
+  await aws.awaitInstanceRunning();
   await gh.waitForRunnerRegistered(runnerLabel);
 }
 

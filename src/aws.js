@@ -180,20 +180,20 @@ async function terminateInstance() {
   }
 }
 
-async function awaitInstanceRunning(awsRegion, awsInstanceId) {
-  AWS.config.update({ region: awsRegion });
+async function awaitInstanceRunning() {
+  AWS.config.update({ region: config.input.awsRegion });
   const ec2 = new AWS.EC2();
 
   const params = {
-    InstanceIds: [awsInstanceId],
+    InstanceIds: [config.input.awsInstanceId],
   };
 
   try {
     await ec2.waitFor('instanceRunning', params).promise();
-    core.info(`aws instance: ${awsInstanceId}, in region: ${awsRegion}, is running`);
+    core.info(`aws instance: ${config.input.awsInstanceId}, in region: ${config.input.awsRegion}, is running`);
     return;
   } catch (error) {
-    core.error(`aws instance: ${awsInstanceId}, in region: ${awsRegion}, initialization error`);
+    core.error(`aws instance: ${config.input.awsInstanceId}, in region: ${config.input.awsRegion}, initialisation error`);
     throw error;
   }
 }
