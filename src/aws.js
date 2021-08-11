@@ -23,7 +23,7 @@ async function startInstance(label, githubRegistrationToken) {
     ],
     'users:',
     '    - default',
-    ...(!!config.input.awsImageSearchPattern && config.input.awsImageSearchPattern.toString().contains('ubuntu')) && [
+    ...(!!config.input.awsImageSearchPattern && (config.input.awsImageSearchPattern.indexOf('ubuntu') > -1)) && [
       'apt:',
       '    sources:',
       '        docker.list:',
@@ -35,7 +35,7 @@ async function startInstance(label, githubRegistrationToken) {
       '    - docker-ce-cli',
       '    - git',
     ],
-    ...(!config.input.awsImageSearchPattern || !config.input.awsImageSearchPattern.toString().contains('ubuntu')) && [
+    ...(!config.input.awsImageSearchPattern || (config.input.awsImageSearchPattern.indexOf('ubuntu') < 0)) && [
       'packages:',
       '    - docker',
       '    - git',

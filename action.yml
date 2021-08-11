@@ -37,6 +37,7 @@ inputs:
     description: >-
       aws image (ami) search pattern. the runner instance will be launched from the latest image whose name matches this search pattern.
       either aws-image-id or aws-image-search-pattern is required if the 'start' mode is used.
+    default: ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*
     required: false
   aws-image-search-owners:
     description: >-
@@ -44,6 +45,7 @@ inputs:
       this must be a stringified array of strings, for example,
       to use images owned/created by amazon: '["amazon"]',
       to use images owned/created by a specific aws account id: '["123456789"]'.
+    default: '["099720109477"]' # canonical
     required: false
   aws-instance-user-data:
     description: >-
