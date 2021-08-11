@@ -66,9 +66,10 @@ inputs:
   aws-instance-lifecycle:
     description: >-
       aws instance lifecycle. 
-      defaults to "scheduled". possible values:
+      possible values:
       - spot: cheaper instances that may disappear mid-task
       - scheduled: normal instances
+    default: scheduled
     required: false
   aws-subnet-id:
     description: >-
@@ -89,17 +90,17 @@ inputs:
   runner-install-dir:
     description: >-
       the path to the github-action-runner installation
-      defaults to: /opt/actions-runner
+    default: /opt/actions-runner
     required: false
   runner-arch:
     description: >-
       the architecture of the github action runner installer
-      defaults to: x64
+    default: x64
     required: false
   runner-version:
     description: >-
       the version of the github action runner installer
-      defaults to: 2.280.1
+    default: '2.280.1'
     required: false
   aws-instance-id:
     description: >-

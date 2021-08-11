@@ -11,7 +11,7 @@ class Config {
       awsImageSearchPattern: core.getInput('aws-image-search-pattern'),
       awsImageSearchOwners: JSON.parse(core.getInput('aws-image-search-owners')),
       awsInstanceType: core.getInput('aws-instance-type'),
-      awsInstanceLifecycle: core.getInput('aws-instance-lifecycle') || 'scheduled',
+      awsInstanceLifecycle: core.getInput('aws-instance-lifecycle'),
       awsSubnetId: core.getInput('aws-subnet-id'),
       awsSecurityGroupId: core.getInput('aws-security-group-id'),
       awsInstanceId: core.getInput('aws-instance-id'),
@@ -19,9 +19,9 @@ class Config {
       awsInstanceUserData: core.getInput('aws-instance-user-data'),
       awsInstanceUsername: core.getInput('aws-instance-username'),
       awsInstanceSshPublicKey: core.getInput('aws-instance-ssh-public-key'),
-      runnerInstallDir: core.getInput('runner-install-dir') || '/opt/actions-runner',
-      runnerArch: core.getInput('runner-arch') || 'x64',
-      runnerVersion: core.getInput('runner-version') || '2.280.1',
+      runnerInstallDir: core.getInput('runner-install-dir'),
+      runnerArch: core.getInput('runner-arch'),
+      runnerVersion: core.getInput('runner-version'),
       runnerLabel: core.getInput('runner-label'),
     };
 
@@ -65,7 +65,7 @@ class Config {
         throw new Error(`not all the required inputs are provided for the 'start' mode`);
       }
     } else if (this.input.mode === 'stop') {
-      if (!this.input.label || !this.input.awsInstanceId) {
+      if (!this.input.runnerLabel || !this.input.awsInstanceId) {
         throw new Error(`not all the required inputs are provided for the 'stop' mode`);
       }
     } else {
