@@ -120,7 +120,7 @@ async function startInstance(label, githubRegistrationToken) {
         const awsSpotInstanceData = await ec2.waitFor('spotInstanceRequestFulfilled', { SpotInstanceRequestIds: [ awsSpotInstanceRequestId ] }).promise();
         const awsInstanceId = awsSpotInstanceData.SpotInstanceRequests[0].InstanceId;
         await ec2.waitFor('instanceStatusOk', { InstanceIds: [ awsInstanceId ] }).promise();
-        core.info(`aws spot instance ${awsInstanceId} is started`);
+        core.info(`aws spot instance ${awsInstanceId} is started in region ${config.input.awsRegion}`);
 
         if (!!config.tagSpecifications && !!config.tagSpecifications.length) {
           try {
@@ -128,13 +128,13 @@ async function startInstance(label, githubRegistrationToken) {
               Resources: [ awsSpotInstanceRequestId, awsInstanceId ], 
               Tags: config.tagSpecifications[0].Tags
             }).promise();
-            core.info(`aws spot instance: ${awsInstanceId} and spot instance request: ${awsSpotInstanceRequestId} are tagged`);
+            core.info(`aws spot instance: ${awsInstanceId} in region: ${config.input.awsRegion} and spot instance request: ${awsSpotInstanceRequestId} are tagged`);
           } catch (error) {
             core.error(`aws spot instance and spot instance request tagging error: ${error.message}`);
           }
         }
 
-        return { awsRegion: config.input.awsRegion, awsInstanceId: config.input.awsInstanceId };
+        return { awsRegion: config.input.awsRegion, awsInstanceId: awsInstanceId };
       } catch (error) {
         core.error('aws spot instance starting error');
         throw error;
@@ -153,8 +153,8 @@ async function startInstance(label, githubRegistrationToken) {
           ...(!!config.tagSpecifications) && { TagSpecifications: config.tagSpecifications },
         }).promise();
         const awsInstanceId = runInstancesResult.Instances[0].InstanceId;
-        core.info(`aws scheduled instance ${awsInstanceId} is started`);
-        return { awsRegion: config.input.awsRegion, awsInstanceId: config.input.awsInstanceId };
+        core.info(`aws scheduled instance: ${awsInstanceId} is started in region: ${config.input.awsRegion}`);
+        return { awsRegion: config.input.awsRegion, awsInstanceId: awsInstanceId };
       } catch (error) {
         core.error('aws scheduled instance starting error');
         throw error;
