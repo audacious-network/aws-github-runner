@@ -68,7 +68,7 @@ async function startInstance(label, githubRegistrationToken) {
     `    - mkdir -p ${config.input.runnerInstallDir}`,
     `    - curl -O -L https://github.com/actions/runner/releases/download/v${config.input.runnerVersion}/actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz`,
     `    - tar xfz actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz -C ${config.input.runnerInstallDir} --strip-components=1`,
-    `    - cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/config.sh --unattended --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}`,
+    `    - cd ${config.input.runnerInstallDir} && export RUNNER_ALLOW_RUNASROOT=1 && ${config.input.runnerInstallDir}/config.sh --unattended --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}`,
     `    - cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh install`,
     `    - cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh start`,
     `    - cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh status`,
