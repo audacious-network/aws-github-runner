@@ -25,7 +25,28 @@ class Config {
       runnerLabel: core.getInput('runner-label'),
     };
 
-    const tags = JSON.parse(core.getInput('aws-resource-tags'));
+    const awsAccessKeyId = core.getInput('aws-access-key-id');
+    core.setSecret(awsAccessKeyId);
+    core.exportVariable('AWS_ACCESS_KEY_ID', awsAccessKeyId);
+
+    const awsSecretAccessKey = core.getInput('aws-secret-access-key');
+    core.setSecret(awsSecretAccessKey);
+    core.exportVariable('AWS_SECRET_ACCESS_KEY', awsSecretAccessKey);
+
+    const tags = JSON.parse(core.getInput('aws-resource-tags') || `[
+      {
+        "Key": "Name",
+        "Value": "github-action-runner"
+      },
+      {
+        "Key": "github-org",
+        "Value": "${github.context.repo.owner}"
+      },
+      {
+        "Key": "github-repo",
+        "Value": "${github.context.repo.repo}"
+      }
+    ]`);
     this.tagSpecifications = null;
     if (tags.length > 0) {
       this.tagSpecifications = [

@@ -121,7 +121,6 @@ inputs:
       this must be a stringified array of aws tag objects, with both key and value fields,
       for example: '[{"key": "tagkey1", "value": "tagvalue1"}, {"key": "tagkey2", "value": "tagvalue2"}]'
     required: false
-    default: '[]'
 outputs:
   runner-label:
     description: >-
