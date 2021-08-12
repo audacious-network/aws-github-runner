@@ -24,6 +24,14 @@ inputs:
     description: >-
       github personal access token with the 'repo' scope assigned.
     required: true
+  aws-access-key-id:
+    description: >-
+      aws access key id (credential account). 
+    required: true
+  aws-secret-access-key:
+    description: >-
+      aws secret access key (credential secret). 
+    required: true
   aws-region:
     description: >-
       aws region. the runner instance will be launched in this region.
