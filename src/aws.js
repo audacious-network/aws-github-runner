@@ -75,10 +75,13 @@ async function startInstance(label, githubRegistrationToken) {
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/rustup update'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/cargo +nightly install --git https://github.com/alexcrichton/wasm-gc --force'`,
     // enable and start docker daemon
+    `    - usermod -aG docker ${config.input.awsInstanceUsername}`,
     '    - systemctl unmask docker.service',
     '    - systemctl unmask docker.socket',
     '    - systemctl enable --now docker',
+    '    - systemctl enable --now containerd',
     '    - systemctl status docker',
+    '    - systemctl status containerd',
     // install github action runner and start daemon
     `    - mkdir -p ${config.input.runnerInstallDir}`,
     `    - curl -O -L https://github.com/actions/runner/releases/download/v${config.input.runnerVersion}/actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz`,
