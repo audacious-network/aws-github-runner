@@ -48,6 +48,15 @@ async function startInstance(label, githubRegistrationToken) {
     '            source: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable', // todo: check config.input.runnerArch and handle arm64
     '            keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88',
     'packages:',
+    '    - build-essential',
+    '    - clang',
+    '    - cmake',
+    '    - containerd.io',
+    '    - docker-ce',
+    '    - docker-ce-cli',
+    '    - git',
+    '    - jq',
+    /*
     ...(!!config.input.awsInstancePackages && !!config.input.awsInstancePackages.length) && config.input.awsInstancePackages.map(p => `    - ${p}`),
     ...(!config.input.awsInstancePackages || !config.input.awsInstancePackages.length) && [
       '    - build-essential',
@@ -59,6 +68,7 @@ async function startInstance(label, githubRegistrationToken) {
       '    - git',
       '    - jq',
     ],
+    */
     'write_files:',
     '    -',
     '        path: /etc/environment',
