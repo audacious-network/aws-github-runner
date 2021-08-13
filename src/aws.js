@@ -64,9 +64,20 @@ async function startInstance(label, githubRegistrationToken) {
     `            RUNNER_VERSION=${config.input.runnerVersion}`,
     '            DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1',
     'runcmd:',
+    // install rust and wasm toolchains
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'curl -s https://sh.rustup.rs -sSf | sh -s -- -y'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.cargo/env'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/rustup toolchain install nightly'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/rustup toolchain install stable'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/rustup default stable'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/rustup target add wasm32-unknown-unknown --toolchain nightly'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/rustup update'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/cargo +nightly install --git https://github.com/alexcrichton/wasm-gc --force'`,
+    // enable and start docker daemon
     '    - systemctl unmask docker.service',
     '    - systemctl unmask docker.socket',
     '    - systemctl enable --now docker',
+    // install github action runner and start daemon
     `    - mkdir -p ${config.input.runnerInstallDir}`,
     `    - curl -O -L https://github.com/actions/runner/releases/download/v${config.input.runnerVersion}/actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz`,
     `    - tar xfz actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz -C ${config.input.runnerInstallDir} --strip-components=1`,
