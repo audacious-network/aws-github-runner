@@ -143,7 +143,7 @@ async function startInstance(label, githubRegistrationToken) {
             ...(!!config.input.awsSubnetId) && { SubnetId: config.input.awsSubnetId },
             ...(!!config.input.awsSecurityGroupId) && { SecurityGroupIds: [ config.input.awsSecurityGroupId ] },
             ...(!!config.input.awsIamRoleName) && { IamInstanceProfile: { Name: config.input.awsIamRoleName } },
-            ...(!!config.input.awsInstanceVolumeSize) && { BlockDeviceMappings: [
+            ...(config.input.awsInstanceRootVolumeSize !== 8) && { BlockDeviceMappings: [
                 {
                   DeviceName: config.input.awsInstanceRootVolumeName,
                   Ebs: {
@@ -160,7 +160,7 @@ async function startInstance(label, githubRegistrationToken) {
         const awsSpotInstanceData = await ec2.waitFor('spotInstanceRequestFulfilled', { SpotInstanceRequestIds: [ awsSpotInstanceRequestId ] }).promise();
         const awsInstanceId = awsSpotInstanceData.SpotInstanceRequests[0].InstanceId;
         await ec2.waitFor('instanceStatusOk', { InstanceIds: [ awsInstanceId ] }).promise();
-        core.info(`aws spot instance ${awsInstanceId} is started in region ${config.input.awsRegion}`);
+        core.info(`aws spot instance ${awsInstanceId} is started with a ${config.input.awsInstanceRootVolumeSize}gb root volume in region ${config.input.awsRegion}`);
 
         if (!!config.tagSpecifications && !!config.tagSpecifications.length) {
           try {
@@ -191,7 +191,7 @@ async function startInstance(label, githubRegistrationToken) {
           ...(!!config.input.awsSecurityGroupId) && { SecurityGroupIds: [config.input.awsSecurityGroupId] },
           ...(!!config.input.awsIamRoleName) && { IamInstanceProfile: { Name: config.input.awsIamRoleName } },
           ...(!!config.tagSpecifications) && { TagSpecifications: config.tagSpecifications },
-          ...(!!config.input.awsInstanceVolumeSize) && { BlockDeviceMappings: [
+          ...(config.input.awsInstanceRootVolumeSize !== 8) && { BlockDeviceMappings: [
               {
                 DeviceName: config.input.awsInstanceRootVolumeName,
                 Ebs: {
@@ -204,7 +204,7 @@ async function startInstance(label, githubRegistrationToken) {
           },
         }).promise();
         const awsInstanceId = runInstancesResult.Instances[0].InstanceId;
-        core.info(`aws scheduled instance: ${awsInstanceId} is started in region: ${config.input.awsRegion}`);
+        core.info(`aws scheduled instance: ${awsInstanceId} is started with a ${config.input.awsInstanceRootVolumeSize}gb root volume in region: ${config.input.awsRegion}`);
         return { awsRegion: config.input.awsRegion, awsInstanceId: awsInstanceId };
       } catch (error) {
         core.error('aws scheduled instance starting error');
