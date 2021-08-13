@@ -20,6 +20,7 @@ class Config {
       awsInstanceId: core.getInput('aws-instance-id'),
       awsIamRoleName: core.getInput('aws-iam-role-name'),
       awsInstanceUserData: core.getInput('aws-instance-user-data'),
+      awsInstancePackages: JSON.parse(core.getInput('aws-instance-packages')),
       awsInstanceUsername: core.getInput('aws-instance-username'),
       awsInstanceSshPublicKey: core.getInput('aws-instance-ssh-public-key'),
       runnerInstallDir: core.getInput('runner-install-dir'),
