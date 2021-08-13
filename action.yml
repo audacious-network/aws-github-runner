@@ -9,6 +9,7 @@ description: |
   - setting of the aws region with the aws-region input rather than an environment variable.
   - support use of the default subnet and security group for the vpc/az instead of requiring an explicit security group and subnet.
   - support use of spot or scheduled instances as opposed to only scheduled instances.
+  - support setting the volume (disk) size so that more than the default 8gb is available to jobs.
 author: rob thijssen
 branding:
   icon: cloud-lightning
@@ -26,11 +27,11 @@ inputs:
     required: true
   aws-access-key-id:
     description: >-
-      aws access key id (credential account). 
+      aws access key id (credential account).
     required: true
   aws-secret-access-key:
     description: >-
-      aws secret access key (credential secret). 
+      aws secret access key (credential secret).
     required: true
   aws-region:
     description: >-
@@ -63,6 +64,7 @@ inputs:
   aws-instance-username:
     description: >-
       aws instance username. this field should be set if overriding default username is required.
+    default: runner
     required: false
   aws-instance-ssh-public-key:
     description: >-
@@ -70,16 +72,21 @@ inputs:
     required: false
   aws-instance-type:
     description: >-
-      aws instance type. 
+      aws instance type.
       this input is required if you use the 'start' mode.
     required: false
   aws-instance-lifecycle:
     description: >-
-      aws instance lifecycle. 
+      aws instance lifecycle.
       possible values:
       - spot: cheaper instances that may disappear mid-task
       - scheduled: normal instances
     default: scheduled
+    required: false
+  aws-instance-volume-size:
+    description: >-
+      aws instance volume size in gigabytes
+    default: 8
     required: false
   aws-subnet-id:
     description: >-
@@ -87,7 +94,7 @@ inputs:
     required: false
   aws-security-group-id:
     description: >-
-      aws security group id. 
+      aws security group id.
       the security group should belong to the same vpc as the specified subnet.
       the runner doesn't require any inbound traffic. however, outbound traffic should be allowed.
     required: false
@@ -100,7 +107,7 @@ inputs:
   runner-install-dir:
     description: >-
       the path to the github-action-runner installation
-    default: /opt/actions-runner
+    default: /home/runner/runners/2.280.1
     required: false
   runner-arch:
     description: >-

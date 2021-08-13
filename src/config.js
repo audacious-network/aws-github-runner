@@ -12,6 +12,8 @@ class Config {
       awsImageSearchOwners: JSON.parse(core.getInput('aws-image-search-owners')),
       awsInstanceType: core.getInput('aws-instance-type'),
       awsInstanceLifecycle: core.getInput('aws-instance-lifecycle'),
+      //awsInstanceVolumeType: core.getInput('aws-instance-volume-type'),
+      awsInstanceVolumeSize: parseInt(core.getInput('aws-instance-volume-size')),
       awsSubnetId: core.getInput('aws-subnet-id'),
       awsSecurityGroupId: core.getInput('aws-security-group-id'),
       awsInstanceId: core.getInput('aws-instance-id'),

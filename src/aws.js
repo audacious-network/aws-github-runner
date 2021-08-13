@@ -68,10 +68,12 @@ async function startInstance(label, githubRegistrationToken) {
     `    - mkdir -p ${config.input.runnerInstallDir}`,
     `    - curl -O -L https://github.com/actions/runner/releases/download/v${config.input.runnerVersion}/actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz`,
     `    - tar xfz actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz -C ${config.input.runnerInstallDir} --strip-components=1`,
-    `    - cd ${config.input.runnerInstallDir} && export RUNNER_ALLOW_RUNASROOT=1 && ${config.input.runnerInstallDir}/config.sh --unattended --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}`,
-    `    - cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh install`,
-    `    - cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh start`,
-    `    - cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh status`,
+    `    - chown -R ${config.input.awsInstanceUsername}:${config.input.awsInstanceUsername} ${config.input.runnerInstallDir}`,
+    `    - chown -R ${config.input.awsInstanceUsername}:${config.input.awsInstanceUsername} /home/${config.input.awsInstanceUsername}`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && export RUNNER_ALLOW_RUNASROOT=1 && sudo ${config.input.runnerInstallDir}/config.sh --unattended --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh install'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh start'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh status'`,
     '',
   ].join('\n');
 
@@ -114,6 +116,17 @@ async function startInstance(label, githubRegistrationToken) {
             ...(!!config.input.awsSubnetId) && { SubnetId: config.input.awsSubnetId },
             ...(!!config.input.awsSecurityGroupId) && { SecurityGroupIds: [ config.input.awsSecurityGroupId ] },
             ...(!!config.input.awsIamRoleName) && { IamInstanceProfile: { Name: config.input.awsIamRoleName } },
+            ...(!!config.input.awsInstanceVolumeSize) && { BlockDeviceMappings: [
+                {
+                  DeviceName: '/dev/xvda',
+                  Ebs: {
+                    DeleteOnTermination: true,
+                    VolumeSize: config.input.awsInstanceVolumeSize,
+                    VolumeType: 'gp2'
+                  }
+                }
+              ]
+            },
           },
         }).promise();
         const awsSpotInstanceRequestId = requestSpotInstancesResult.SpotInstanceRequests[0].SpotInstanceRequestId;
@@ -151,6 +164,17 @@ async function startInstance(label, githubRegistrationToken) {
           ...(!!config.input.awsSecurityGroupId) && { SecurityGroupIds: [config.input.awsSecurityGroupId] },
           ...(!!config.input.awsIamRoleName) && { IamInstanceProfile: { Name: config.input.awsIamRoleName } },
           ...(!!config.tagSpecifications) && { TagSpecifications: config.tagSpecifications },
+          ...(!!config.input.awsInstanceVolumeSize) && { BlockDeviceMappings: [
+              {
+                DeviceName: '/dev/xvda',
+                Ebs: {
+                  DeleteOnTermination: true,
+                  VolumeSize: config.input.awsInstanceVolumeSize,
+                  VolumeType: 'gp2'
+                }
+              }
+            ]
+          },
         }).promise();
         const awsInstanceId = runInstancesResult.Instances[0].InstanceId;
         core.info(`aws scheduled instance: ${awsInstanceId} is started in region: ${config.input.awsRegion}`);

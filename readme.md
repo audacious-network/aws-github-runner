@@ -8,7 +8,8 @@ it has been modified to:
 - support overriding user-data when custom dependencies need to be preinstalled.
 - setting of the aws region with the aws-region input rather than an environment variable.
 - support use of the default subnet and security group for the vpc/az instead of requiring an explicit security group and subnet.
-- support use of spot or scheduled instances as opposed to only scheduled instances.
+- support use of cheaper spot or scheduled instances as opposed to only scheduled instances.
+- support setting the volume (disk) size so that more than the default 8gb is available to jobs.
 
 start your aws [self-hosted runner](https://docs.github.com/en/free-pro-team@latest/actions/hosting-your-own-runners) right before you need it.
 run the job on it.
@@ -233,18 +234,15 @@ jobs:
       runner-label: ${{ steps.start-aws-runner.outputs.runner-label }}
       aws-instance-id: ${{ steps.start-aws-runner.outputs.aws-instance-id }}
     steps:
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
       - name: start aws runner
         id: start-aws-runner
         uses: audacious-network/aws-github-runner@v1
         with:
           mode: start
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
           aws-image-id: ami-123
           aws-instance-type: t3.nano
           subnet-id: subnet-123
@@ -270,17 +268,14 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
       - name: Stop aws runner
         uses: audacious-network/aws-github-runner@v1
         with:
           mode: stop
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
           runner-label: ${{ needs.start-runner.outputs.runner-label }}
           aws-instance-id: ${{ needs.start-runner.outputs.aws-instance-id }}
 ```
