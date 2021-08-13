@@ -78,6 +78,7 @@ async function startInstance(label, githubRegistrationToken) {
     '    - systemctl unmask docker.service',
     '    - systemctl unmask docker.socket',
     '    - systemctl enable --now docker',
+    '    - systemctl status docker',
     // install github action runner and start daemon
     `    - mkdir -p ${config.input.runnerInstallDir}`,
     `    - curl -O -L https://github.com/actions/runner/releases/download/v${config.input.runnerVersion}/actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz`,
