@@ -83,9 +83,18 @@ inputs:
       - scheduled: normal instances
     default: scheduled
     required: false
-  aws-instance-volume-size:
+  aws-instance-root-volume-name:
     description: >-
-      aws instance volume size in gigabytes
+      aws instance root volume name
+      it is usually best to leave this unset since its value is often specific to each ami. its value will be looked up when the image is found.
+      typical root volume names:
+      - /dev/sda1 (ubuntu)
+      - /dev/xvda
+    default: /dev/sda1
+    required: false
+  aws-instance-root-volume-size:
+    description: >-
+      aws instance root volume size in gigabytes
     default: 8
     required: false
   aws-subnet-id:

@@ -70,10 +70,10 @@ async function startInstance(label, githubRegistrationToken) {
     `    - tar xfz actions-runner-linux-${config.input.runnerArch}-${config.input.runnerVersion}.tar.gz -C ${config.input.runnerInstallDir} --strip-components=1`,
     `    - chown -R ${config.input.awsInstanceUsername}:${config.input.awsInstanceUsername} ${config.input.runnerInstallDir}`,
     `    - chown -R ${config.input.awsInstanceUsername}:${config.input.awsInstanceUsername} /home/${config.input.awsInstanceUsername}`,
-    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && export RUNNER_ALLOW_RUNASROOT=1 && sudo ${config.input.runnerInstallDir}/config.sh --unattended --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}'`,
-    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh install'`,
-    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh start'`,
-    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh status'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && export RUNNER_ALLOW_RUNASROOT=1 && ${config.input.runnerInstallDir}/config.sh --unattended --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh install'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh start'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh status'`,
     '',
   ].join('\n');
 
@@ -96,8 +96,21 @@ async function startInstance(label, githubRegistrationToken) {
         ],
         ...(config.input.awsImageSearchOwners && config.input.awsImageSearchOwners.length) && { Owners: config.input.awsImageSearchOwners }
       }).promise();
-      config.input.awsImageId = result.Images.sort((a, b) => ((a.CreationDate < b.CreationDate) ? -1 : ((a.CreationDate > b.CreationDate) ? 1 : 0))).slice(-1)[0].ImageId;
-      core.info(`aws image ${config.input.awsImageId} found for search pattern: ${config.input.awsImageSearchPattern}`);
+      const awsImage = result.Images.sort((a, b) => ((a.CreationDate < b.CreationDate) ? -1 : ((a.CreationDate > b.CreationDate) ? 1 : 0))).slice(-1)[0];
+      config.input.awsImageId = awsImage.ImageId;
+      config.input.awsInstanceRootVolumeName = awsImage.BlockDeviceMappings[0].DeviceName;
+      core.info(`aws image: ${config.input.awsImageId}, with root volume name: ${config.input.awsInstanceRootVolumeName}, found for search pattern: ${config.input.awsImageSearchPattern}`);
+
+    } catch (error) {
+      core.error('aws image search error');
+      throw error;
+    }
+  } else if (config.input.awsImageId) {
+    try {
+      const result = await ec2.describeImages({ ImageId: config.input.awsImageId }).promise();
+      const awsImage = result.Images[0];
+      config.input.awsInstanceRootVolumeName = awsImage.BlockDeviceMappings[0].DeviceName;
+      core.info(`aws image: ${config.input.awsImageId}, with root volume name: ${config.input.awsInstanceRootVolumeName}, found`);
     } catch (error) {
       core.error('aws image search error');
       throw error;
@@ -118,10 +131,10 @@ async function startInstance(label, githubRegistrationToken) {
             ...(!!config.input.awsIamRoleName) && { IamInstanceProfile: { Name: config.input.awsIamRoleName } },
             ...(!!config.input.awsInstanceVolumeSize) && { BlockDeviceMappings: [
                 {
-                  DeviceName: '/dev/xvda',
+                  DeviceName: config.input.awsInstanceRootVolumeName,
                   Ebs: {
                     DeleteOnTermination: true,
-                    VolumeSize: config.input.awsInstanceVolumeSize,
+                    VolumeSize: config.input.awsInstanceRootVolumeSize,
                     VolumeType: 'gp2'
                   }
                 }
@@ -166,10 +179,10 @@ async function startInstance(label, githubRegistrationToken) {
           ...(!!config.tagSpecifications) && { TagSpecifications: config.tagSpecifications },
           ...(!!config.input.awsInstanceVolumeSize) && { BlockDeviceMappings: [
               {
-                DeviceName: '/dev/xvda',
+                DeviceName: config.input.awsInstanceRootVolumeName,
                 Ebs: {
                   DeleteOnTermination: true,
-                  VolumeSize: config.input.awsInstanceVolumeSize,
+                  VolumeSize: config.input.awsInstanceRootVolumeSize,
                   VolumeType: 'gp2'
                 }
               }
