@@ -71,9 +71,9 @@ async function startInstance(label, githubRegistrationToken) {
     `    - chown -R ${config.input.awsInstanceUsername}:${config.input.awsInstanceUsername} ${config.input.runnerInstallDir}`,
     `    - chown -R ${config.input.awsInstanceUsername}:${config.input.awsInstanceUsername} /home/${config.input.awsInstanceUsername}`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && export RUNNER_ALLOW_RUNASROOT=1 && ${config.input.runnerInstallDir}/config.sh --unattended --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}'`,
-    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh install'`,
-    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh start'`,
-    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && ${config.input.runnerInstallDir}/svc.sh status'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh install'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh start'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh status'`,
     '',
   ].join('\n');
 
