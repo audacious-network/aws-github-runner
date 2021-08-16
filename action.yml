@@ -64,7 +64,7 @@ inputs:
   # aws-instance-packages:
   #   description: >-
   #     packages to pre-install at instance bootstrap.
-  #   default: '["build-essential", "clang", "cmake", "containerd.io", "docker-ce", "docker-ce-cli", "git", "jq"]'
+  #   default: '["build-essential", "clang", "cmake", "containerd.io", "docker-ce", "docker-ce-cli", "git", "jq", "tree"]'
   #   required: false
   aws-instance-username:
     description: >-

@@ -56,6 +56,7 @@ async function startInstance(label, githubRegistrationToken) {
     '    - docker-ce-cli',
     '    - git',
     '    - jq',
+    '    - tree',
     /*
     ...(!!config.input.awsInstancePackages && !!config.input.awsInstancePackages.length) && config.input.awsInstancePackages.map(p => `    - ${p}`),
     ...(!config.input.awsInstancePackages || !config.input.awsInstancePackages.length) && [
