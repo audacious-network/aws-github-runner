@@ -96,8 +96,9 @@ async function startInstance(label, githubRegistrationToken) {
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/bash_completion'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh && nvm install v${config.input.nodeVersion}'`,
-    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh && npm install --global npm@${config.input.npmVersion}`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh && npm install --global npm`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh && npm install --global yarn'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh && npm install --global pm2'`,
 
     // enable and start docker daemon, add runner user to docker group. see: https://docs.docker.com/engine/install/linux-postinstall/
     '    - systemctl unmask docker.service',

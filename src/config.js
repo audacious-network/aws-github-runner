@@ -28,7 +28,6 @@ class Config {
       runnerVersion: core.getInput('runner-version'),
       runnerLabel: core.getInput('runner-label'),
       nodeVersion: core.getInput('node-version'),
-      npmVersion: core.getInput('npm-version'),
       nvmVersion: core.getInput('nvm-version'),
     };
 
