@@ -133,6 +133,21 @@ inputs:
       the version of the github action runner installer
     default: '2.280.1'
     required: false
+  node-version:
+    description: >-
+      the version of nvm to install
+    default: '16.3.0'
+    required: false
+  npm-version:
+    description: >-
+      the version of nvm to install
+    default: '7.20.6'
+    required: false
+  nvm-version:
+    description: >-
+      the version of nvm to install
+    default: '0.38.0'
+    required: false
   aws-instance-id:
     description: >-
       aws instance id of the created runner.

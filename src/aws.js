@@ -88,6 +88,16 @@ async function startInstance(label, githubRegistrationToken) {
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/rustup target add wasm32-unknown-unknown --toolchain nightly'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/rustup update'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/cargo +nightly install --git https://github.com/alexcrichton/wasm-gc --force'`,
+
+    // install nodejs and yarn
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${config.input.nvmVersion}/install.sh | bash'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'export NVM_DIR="/home/${config.input.awsInstanceUsername}/.nvm"'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/bash_completion'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh && nvm install v${config.input.nodeVersion}'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh && npm install --global npm@${config.input.npmVersion}`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh && npm install --global yarn'`,
+
     // enable and start docker daemon, add runner user to docker group. see: https://docs.docker.com/engine/install/linux-postinstall/
     '    - systemctl unmask docker.service',
     '    - systemctl unmask docker.socket',
