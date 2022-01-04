@@ -61,11 +61,11 @@ inputs:
       aws instance user data. this field should only be set if overriding default user-data is required.
       for example to install action specific dependencies. if set, the user-data must include commands to install, configure and run github-action-runner as the default user-data does.
     required: false
-  # aws-instance-packages:
-  #   description: >-
-  #     packages to pre-install at instance bootstrap.
-  #   default: '["build-essential", "clang", "cmake", "containerd.io", "docker-ce", "docker-ce-cli", "git", "jq", "tree"]'
-  #   required: false
+  aws-instance-packages:
+    description: >-
+      packages to pre-install at instance bootstrap.
+    default: '[]'
+    required: false
   aws-instance-username:
     description: >-
       aws instance username. this field should be set if overriding default username is required.

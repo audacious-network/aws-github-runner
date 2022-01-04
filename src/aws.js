@@ -197,7 +197,7 @@ async function startInstance(label, githubRegistrationToken) {
                   Ebs: {
                     DeleteOnTermination: true,
                     VolumeSize: config.input.awsInstanceRootVolumeSize,
-                    VolumeType: config.input.awsInstanceRootVolumeType || 'gp2'
+                    VolumeType: config.input.awsInstanceRootVolumeType
                   }
                 }
               ]
