@@ -126,7 +126,7 @@ inputs:
   runner-install-dir:
     description: >-
       the path to the github-action-runner installation
-    default: /home/runner/runners/2.280.1
+    default: /home/runner/runners/2.286.0
     required: false
   runner-arch:
     description: >-
@@ -136,7 +136,7 @@ inputs:
   runner-version:
     description: >-
       the version of the github action runner installer
-    default: '2.280.1'
+    default: '2.286.0'
     required: false
   node-version:
     description: >-
