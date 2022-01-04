@@ -5,7 +5,66 @@ const config = require('./config');
 async function startInstance(label, githubRegistrationToken) {
   AWS.config.update({ region: config.input.awsRegion });
   const ec2 = new AWS.EC2();
-
+  const distro = (!!config.input.awsImageSearchPattern && (config.input.awsImageSearchPattern.indexOf('ubuntu') > -1))
+    ? 'ubuntu'
+    : (!!config.input.awsImageSearchPattern && (config.input.awsImageSearchPattern.indexOf('Fedora') > -1))
+      ? 'fedora'
+      : 'unknown';
+  const defaultSources = {
+    ubuntu: [
+      'apt:',
+      '    sources:',
+      '        docker.list:',
+      '            source: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable', // todo: check config.input.runnerArch and handle arm64
+      '            keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88',
+    ],
+    fedora: [
+      'yum_repos:',
+      '    docker-ce-stable:',
+      '        name: Docker CE Stable - $basearch',
+      '        baseurl: https://download.docker.com/linux/fedora/$releasever/$basearch/stable',
+      '        enabled: true',
+      '        gpgcheck: true',
+      '        gpgkey: https://download.docker.com/linux/fedora/gpg',
+    ],
+    unknown: [],
+  }[distro];
+  const defaultPackageList = {
+    ubuntu: [
+      'build-essential',
+      'clang',
+      'cmake',
+      'containerd.io',
+      'docker-ce',
+      'docker-ce-cli',
+      'git',
+      'jq',
+      'tree',
+    ],
+    fedora: [
+      'automake',
+      'clang',
+      'cmake',
+      'containerd.io',
+      'docker-ce',
+      'docker-ce-cli',
+      'gcc',
+      'gcc-c++',
+      'git',
+      'jq',
+      'kernel-devel',
+      'make',
+      'tree',
+    ],
+    unknown: [],
+  }[distro];
+  const customPackageList = (!!config.input.awsInstancePackages && !!config.input.awsInstancePackages.length)
+    ? config.input.awsInstancePackages
+    : [];
+  const packageList = [...new Set([
+    ...customPackageList,
+    ...defaultPackageList,
+  ])];
   const awsInstanceUserData = config.input.awsInstanceUserData || [
     '#cloud-config',
     'system_info:',
@@ -23,53 +82,10 @@ async function startInstance(label, githubRegistrationToken) {
     ],
     'users:',
     '    - default',
-    /*
-    ...(!!config.input.awsImageSearchPattern && (config.input.awsImageSearchPattern.indexOf('ubuntu') > -1)) && [
-      'apt:',
-      '    sources:',
-      '        docker.list:',
-      '            source: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable', // todo: check config.input.runnerArch and handle arm64
-      '            keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88',
-      'packages:',
-      '    - containerd.io',
-      '    - docker-ce',
-      '    - docker-ce-cli',
-      '    - git',
-    ],
-    ...(!config.input.awsImageSearchPattern || (config.input.awsImageSearchPattern.indexOf('ubuntu') < 0)) && [
-      'packages:',
-      '    - docker',
-      '    - git',
-    ],
-    */
-    'apt:',
-    '    sources:',
-    '        docker.list:',
-    '            source: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable', // todo: check config.input.runnerArch and handle arm64
-    '            keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88',
+    ...defaultSources,
     'packages:',
-    '    - build-essential',
-    '    - clang',
-    '    - cmake',
-    '    - containerd.io',
-    '    - docker-ce',
-    '    - docker-ce-cli',
-    '    - git',
-    '    - jq',
-    '    - tree',
-    /*
-    ...(!!config.input.awsInstancePackages && !!config.input.awsInstancePackages.length) && config.input.awsInstancePackages.map(p => `    - ${p}`),
-    ...(!config.input.awsInstancePackages || !config.input.awsInstancePackages.length) && [
-      '    - build-essential',
-      '    - clang',
-      '    - cmake',
-      '    - containerd.io',
-      '    - docker-ce',
-      '    - docker-ce-cli',
-      '    - git',
-      '    - jq',
-    ],
-    */
+    ...packageList.map(p => `    - ${p}`),
+    'package_upgrade: true',
     'write_files:',
     '    -',
     '        path: /etc/environment',
@@ -89,7 +105,6 @@ async function startInstance(label, githubRegistrationToken) {
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/rustup target add wasm32-unknown-unknown --toolchain nightly'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/rustup update'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c '/home/${config.input.awsInstanceUsername}/.cargo/bin/cargo +nightly install --git https://github.com/alexcrichton/wasm-gc --force'`,
-
     // install nodejs and yarn
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${config.input.nvmVersion}/install.sh | bash'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'export NVM_DIR="/home/${config.input.awsInstanceUsername}/.nvm"'`,
@@ -99,7 +114,6 @@ async function startInstance(label, githubRegistrationToken) {
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh && npm install --global npm'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh && npm install --global yarn'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'source /home/${config.input.awsInstanceUsername}/.nvm/nvm.sh && npm install --global pm2'`,
-
     // enable and start docker daemon, add runner user to docker group. see: https://docs.docker.com/engine/install/linux-postinstall/
     '    - systemctl unmask docker.service',
     '    - systemctl unmask docker.socket',
