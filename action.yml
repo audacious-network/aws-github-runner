@@ -102,6 +102,11 @@ inputs:
       aws instance root volume size in gigabytes
     default: 8
     required: false
+  aws-instance-root-volume-type:
+    description: >-
+      aws instance root volume type
+    default: gp2
+    required: false
   aws-subnet-id:
     description: >-
       aws subnet id. the subnet should belong to the same vpc as the specified security group.
