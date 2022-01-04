@@ -56,6 +56,7 @@ async function startInstance(label, githubRegistrationToken) {
       'libicu',
       'lttng-ust',
       'make',
+      'openssl-libs',
       'tree',
     ],
     unknown: [],
@@ -137,8 +138,7 @@ async function startInstance(label, githubRegistrationToken) {
     `    - ${config.input.runnerInstallDir}/bin/installdependencies.sh || true`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && export RUNNER_ALLOW_RUNASROOT=1 && ${config.input.runnerInstallDir}/config.sh --unattended --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh install'`,
-    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh start'`,
-    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh status'`,
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh start || sudo ${config.input.runnerInstallDir}/runsvc.sh'`,
     '',
   ].join('\n');
 
