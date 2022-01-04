@@ -12,7 +12,7 @@
     "url": "https://github.com/audacious-network/aws-github-runner/issues"
   },
   "scripts": {
-    "index": "node -r dotenv/config ./src/index.js",
+    "index": "NODE_DEBUG=cluster,net,http,fs,tls,module,timers node -r dotenv/config ./src/index.js",
     "lint": "eslint ./src/*.js",
     "package": "ncc build ./src/index.js"
   },

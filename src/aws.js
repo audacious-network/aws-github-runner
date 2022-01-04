@@ -61,10 +61,12 @@ async function startInstance(label, githubRegistrationToken) {
   const customPackageList = (!!config.input.awsInstancePackages && !!config.input.awsInstancePackages.length)
     ? config.input.awsInstancePackages
     : [];
-  const packageList = [...new Set([
-    ...customPackageList,
-    ...defaultPackageList,
-  ])];
+  const packageList = [
+    ...new Set([
+      ...customPackageList,
+      ...defaultPackageList,
+    ])
+  ];
   const awsInstanceUserData = config.input.awsInstanceUserData || [
     '#cloud-config',
     'system_info:',
@@ -84,7 +86,7 @@ async function startInstance(label, githubRegistrationToken) {
     '    - default',
     ...defaultSources,
     'packages:',
-    ...packageList.map(p => `    - ${p}`),
+    ...(packageList.map((p) => `    - ${p}`)),
     'package_upgrade: true',
     'write_files:',
     '    -',
