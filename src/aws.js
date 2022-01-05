@@ -57,6 +57,10 @@ async function startInstance(label, githubRegistrationToken) {
       'lttng-ust',
       'make',
       'openssl-libs',
+      'policycoreutils',
+      'policycoreutils-python-utils',
+      'rpm',
+      'rpm-sign',
       'tree',
     ],
     unknown: [],
@@ -138,7 +142,11 @@ async function startInstance(label, githubRegistrationToken) {
     `    - ${config.input.runnerInstallDir}/bin/installdependencies.sh || true`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && export RUNNER_ALLOW_RUNASROOT=1 && ${config.input.runnerInstallDir}/config.sh --unattended --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh install'`,
-    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh start || sudo ${config.input.runnerInstallDir}/runsvc.sh'`,
+    ...(distro === 'fedora') && [
+      `    - semanage fcontext -m -t bin_t -s system_u ${config.input.runnerInstallDir}/externals/node12/bin/node`,
+      `    - restorecon -vF ${config.input.runnerInstallDir}/externals/node12/bin/node`,
+    ],
+    `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh start'`,
     '',
   ].join('\n');
 
