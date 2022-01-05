@@ -143,8 +143,10 @@ async function startInstance(label, githubRegistrationToken) {
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && export RUNNER_ALLOW_RUNASROOT=1 && ${config.input.runnerInstallDir}/config.sh --unattended --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}'`,
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh install'`,
     ...(distro === 'fedora') && [
-      `    - semanage fcontext -m -t bin_t -s system_u ${config.input.runnerInstallDir}/externals/node12/bin/node`,
-      `    - restorecon -vF ${config.input.runnerInstallDir}/externals/node12/bin/node`,
+      //`    - semanage fcontext -m -t bin_t -s system_u ${config.input.runnerInstallDir}/externals/node12/bin/node`,
+      //`    - restorecon -vF ${config.input.runnerInstallDir}/externals/node12/bin/node`,
+      `    - setenforce 0`,
+      `    - sed -i 's/enforcing/disabled/g' /etc/selinux/config /etc/selinux/config`,
     ],
     `    - sudo -H -u ${config.input.awsInstanceUsername} bash -c 'cd ${config.input.runnerInstallDir} && sudo ${config.input.runnerInstallDir}/svc.sh start'`,
     '',
